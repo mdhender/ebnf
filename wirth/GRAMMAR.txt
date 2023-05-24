@@ -1,0 +1,47 @@
+From Communications of the ACM, Vol 20, No 11, p822-823
+
+    syntax     = { production } .
+    production = NONTERMINAL EQ expression TERMINATOR .
+    expression = term { OR term } .
+    term       = factor { factor } .
+    factor     = NONTERMINAL
+               | TERMINAL
+               | START_GROUP expression END_GROUP
+               | START_OPTION expression END_OPTION
+               | START_REPETITION expression END_REPETITION .
+
+NonTerminals
+
+    expression
+    factor
+    production
+    syntax
+    term
+
+Terminals
+
+    COMMENT          = ";" ... EOL
+    END_GROUP        = ")"
+    END_OPTION       = "]"
+    END_REPETITION   = "}"
+    EQ               = "="
+    NONTERMINAL      = LOWERLETTER { LETTER | DIGIT | UNDERSCORE }
+    OR               = "|"
+    TERMINAL         = UPPERLETTER { LETTER | DIGIT | UNDERSCORE }
+    START_GROUP      = "("
+    START_OPTION     = "["
+    START_REPETITION = "{"
+    TERMINATOR       = "."
+
+Meta Symbols
+
+    Group      represents a grouping of the expression.
+
+    Option     represents "zero or one" occurrences of the expression.
+
+    Repetition represents "zero or more" occurrences of the expression.
+
+Delimiters
+
+    The scanner treats spaces, invalid runes, and single-character
+    terminals as delimiters that separate tokens.
