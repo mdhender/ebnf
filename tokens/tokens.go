@@ -1,3 +1,8 @@
+// Copyright 2023 Michael D Henderson.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the COPYING file.
+
+// Package tokens defines tokens returned from scanning.
 package tokens
 
 import "fmt"
