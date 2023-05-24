@@ -7,6 +7,7 @@ package ebnf
 
 import (
 	"fmt"
+	"github.com/mdhender/ebnf/tokens"
 	"unicode/utf8"
 )
 
@@ -17,12 +18,12 @@ type Grammar map[string]*Production
 // ----------------------------------------------------------------------------
 // Grammar verification
 
-func isNonTerminal(tok *Token) bool {
-	return tok.Kind == NONTERMINAL
+func isNonTerminal(tok *tokens.Token) bool {
+	return tok.Kind == tokens.NONTERMINAL
 }
 
-func isTerminal(tok *Token) bool {
-	return tok.Kind == TERMINAL
+func isTerminal(tok *tokens.Token) bool {
+	return tok.Kind == tokens.TERMINAL
 }
 
 type verifier struct {
@@ -44,10 +45,10 @@ func (v *verifier) push(prod *Production) {
 	}
 }
 
-func (v *verifier) verifyChar(x *Token) rune {
+func (v *verifier) verifyChar(x *tokens.Token) rune {
 	s := string(x.Text)
 	if utf8.RuneCountInString(s) != 1 {
-		v.error("%d: single char expected, found %q", x.Line, s)
+		v.error("%d: single char expected, found %q", x.Line(), s)
 		return 0
 	}
 	ch, _ := utf8.DecodeRuneInString(s)
@@ -72,11 +73,11 @@ func (v *verifier) verifyExpr(expr Expression, lexical bool) {
 		if prod, found := v.grammar[x.String()]; found {
 			v.push(prod)
 		} else {
-			v.error("%d: missing production %q", x.tok.Line, x.String())
+			v.error("%d: missing production %q", x.tok.Line(), x.String())
 		}
 		// within a lexical production references to non-lexical productions are invalid
 		if lexical && isTerminal(x.tok) {
-			v.error("%d: reference to non-lexical production %q", x.tok.Line, x.String())
+			v.error("%d: reference to non-lexical production %q", x.tok.Line(), x.String())
 		}
 	case *Literal:
 		// nothing to do for now
@@ -87,7 +88,7 @@ func (v *verifier) verifyExpr(expr Expression, lexical bool) {
 	case *Repetition:
 		v.verifyExpr(x.Body, lexical)
 	case *Bad:
-		v.error("%d: %v", x.tok.Line, x.err)
+		v.error("%d: %v", x.tok.Line(), x.err)
 	default:
 		panic(fmt.Sprintf("internal error: unexpected type %T", expr))
 	}

@@ -6,12 +6,13 @@
 package ebnf
 
 import (
+	"github.com/mdhender/ebnf/tokens"
 	"testing"
 )
 
 var goodGrammars = []string{
 	`program = .`,
-	`program = Foo . // end`,
+	`program = Foo . ; end`,
 	`program = Foo .`,
 	`program = A | B C .`,
 	`program = AtoZ .`,
@@ -83,7 +84,7 @@ func TestGrammars(t *testing.T) {
 		if debug {
 			for _, token := range Scan([]byte(src)) {
 				t.Logf("%s\n", token)
-				if token.Kind == EOF {
+				if token.Kind == tokens.EOF {
 					break
 				}
 			}
@@ -96,7 +97,7 @@ func TestGrammars(t *testing.T) {
 		if debug {
 			for _, token := range Scan([]byte(src)) {
 				t.Logf("%s\n", token)
-				if token.Kind == EOF {
+				if token.Kind == tokens.EOF {
 					break
 				}
 			}
@@ -109,7 +110,7 @@ func TestGrammars(t *testing.T) {
 		if debug {
 			for _, token := range Scan([]byte(src)) {
 				t.Logf("%s\n", token)
-				if token.Kind == EOF {
+				if token.Kind == tokens.EOF {
 					break
 				}
 			}

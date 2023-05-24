@@ -7,6 +7,7 @@ package ebnf
 
 import (
 	"fmt"
+	"github.com/mdhender/ebnf/tokens"
 )
 
 // Parse parses a set of EBNF productions from the input.
@@ -14,19 +15,19 @@ import (
 // Errors are reported for incorrect syntax and if a production
 // is declared more than once.
 func Parse(input []byte) (Grammar, []error) {
-	tokens := Scan(input)
+	toks := Scan(input)
 
 	var p parser
-	grammar := p.parse(tokens)
+	grammar := p.parse(toks)
 	return grammar, p.errors
 }
 
 type parser struct {
-	pos    int    // token position
-	eof    *Token // end of tokens
-	tok    *Token // one token look-ahead
-	lit    string // token literal
-	tokens []*Token
+	pos    int           // token position
+	eof    *tokens.Token // end of tokens
+	tok    *tokens.Token // one token look-ahead
+	lit    string        // token literal
+	tokens []*tokens.Token
 	errors errorList
 }
 
@@ -39,10 +40,10 @@ type parser struct {
 // --> group       ::= LPAREN   expression RPAREN   .
 // --> option      ::= LBRACKET expression RBRACKET .
 // --> repetition  ::= LBRACE   expression RBRACE   .
-func (p *parser) parse(tokens []*Token) (grammar Grammar) {
-	p.tokens = tokens
-	if len(tokens) > 0 {
-		p.eof = tokens[len(tokens)-1]
+func (p *parser) parse(toks []*tokens.Token) (grammar Grammar) {
+	p.tokens = toks
+	if len(toks) > 0 {
+		p.eof = toks[len(toks)-1]
 	}
 
 	// initializes pos, tok, lit
@@ -53,7 +54,7 @@ func (p *parser) parse(tokens []*Token) (grammar Grammar) {
 		prod := p.parseProduction()
 		name := prod.Name.String()
 		if def, found := grammar[name]; found {
-			p.error("%d: %s: defined line %d", prod.Name.tok.Line, def.Name.String(), def.Name.tok.Line)
+			p.error("%d: %s: defined line %d", prod.Name.tok.Line(), def.Name.String(), def.Name.tok.Line())
 			continue
 		}
 		grammar[name] = prod
@@ -66,12 +67,12 @@ func (p *parser) parse(tokens []*Token) (grammar Grammar) {
 // --> production  ::= NONTERMINAL EQ [ expression ] TERMINATOR .
 func (p *parser) parseProduction() *Production {
 	name := p.parseNonTerminal()
-	p.expect(EQ)
+	p.expect(tokens.EQ)
 	var expr Expression
-	if p.tok.Kind != TERMINATOR {
+	if p.tok.Kind != tokens.TERMINATOR {
 		expr = p.parseExpression()
 	}
-	p.expect(TERMINATOR)
+	p.expect(tokens.TERMINATOR)
 	return &Production{Name: name, Expr: expr}
 }
 
@@ -81,7 +82,7 @@ func (p *parser) parseExpression() Expression {
 	var list Alternative
 
 	list = append(list, p.parseSequence())
-	for p.tok.Kind == OR {
+	for p.tok.Kind == tokens.OR {
 		p.next()
 		list = append(list, p.parseSequence())
 	}
@@ -108,7 +109,7 @@ func (p *parser) parseSequence() Expression {
 		p.errorExpected(p.pos, "term", p.tok)
 		return &Bad{
 			tok: p.tok,
-			err: fmt.Errorf("%d: term expected", p.tok.Line),
+			err: fmt.Errorf("%d: term expected", p.tok.Line()),
 		}
 	}
 
@@ -129,26 +130,26 @@ func (p *parser) parseSequence() Expression {
 func (p *parser) parseTerm() (x Expression) {
 	tok := p.tok
 	switch p.tok.Kind {
-	case NONTERMINAL:
+	case tokens.NONTERMINAL:
 		x = p.parseNonTerminal()
 
-	case TERMINAL:
+	case tokens.TERMINAL:
 		x = p.parseTerminal()
 
-	case START_GROUP:
+	case tokens.START_GROUP:
 		p.next()
 		x = &Group{tok: tok, Body: p.parseExpression()}
-		p.expect(END_GROUP)
+		p.expect(tokens.END_GROUP)
 
-	case START_OPTION:
+	case tokens.START_OPTION:
 		p.next()
 		x = &Option{tok: tok, Body: p.parseExpression()}
-		p.expect(END_OPTION)
+		p.expect(tokens.END_OPTION)
 
-	case START_REPETITION:
+	case tokens.START_REPETITION:
 		p.next()
 		x = &Repetition{tok: tok, Body: p.parseExpression()}
-		p.expect(END_REPETITION)
+		p.expect(tokens.END_REPETITION)
 	}
 
 	return x
@@ -157,17 +158,17 @@ func (p *parser) parseTerm() (x Expression) {
 // parseNonTerminal parses a NONTERMINAL.
 func (p *parser) parseNonTerminal() *Name {
 	tok := p.tok
-	p.expect(NONTERMINAL)
+	p.expect(tokens.NONTERMINAL)
 	return &Name{tok: tok}
 }
 
 // parseTerminal parses a TERMINAL.
 func (p *parser) parseTerminal() *Literal {
 	tok := p.tok
-	if p.tok.Kind == TERMINAL {
+	if p.tok.Kind == tokens.TERMINAL {
 		p.next()
 	} else { // didn't find terminal?
-		p.expect(TERMINAL)
+		p.expect(tokens.TERMINAL)
 	}
 	return &Literal{tok: tok}
 }
@@ -188,7 +189,7 @@ func (p *parser) error(format string, args ...any) {
 }
 
 // errorExpected generates an error and appends it to the parser's list of errors.
-func (p *parser) errorExpected(pos int, want string, got *Token) {
+func (p *parser) errorExpected(pos int, want string, got *tokens.Token) {
 	if got == nil {
 		p.error("%d: expected %q", pos, want)
 		return
@@ -206,7 +207,7 @@ func (p *parser) errorExpected(pos int, want string, got *Token) {
 // if the token doesn't match, it generates an error and appends the error to
 // the parser's list of errors.
 // always calls next() to advance the input.
-func (p *parser) expect(k Kind) {
+func (p *parser) expect(k tokens.Kind) {
 	if p.tok.Kind != k {
 		p.errorExpected(p.pos, k.String(), p.tok)
 	}

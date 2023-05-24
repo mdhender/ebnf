@@ -1,12 +1,14 @@
 package wirth
 
+import "github.com/mdhender/ebnf/tokens"
+
 type Syntax struct {
-	Start       *Token
+	Start       *tokens.Token
 	Productions map[string]*Production
 }
 
 type Production struct {
-	Name       *Token
+	Name       *tokens.Token
 	Expression *Expression
 }
 
@@ -19,8 +21,8 @@ type Term struct {
 }
 
 type Factor struct {
-	NonTerminal *Token
-	Terminal    *Token
+	NonTerminal *tokens.Token
+	Terminal    *tokens.Token
 	Group       *Expression
 	Option      *Expression
 	Repetition  *Expression

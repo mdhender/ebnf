@@ -6,29 +6,31 @@ package ebnf
 
 import (
 	"bytes"
+	"github.com/mdhender/ebnf/tokens"
 	"unicode"
 	"unicode/utf8"
 )
 
-func Scan(input []byte) (tokens []*Token) {
+func Scan(input []byte) []*tokens.Token {
 	if len(input) == 0 {
-		return []*Token{&Token{Kind: EOF}}
+		return []*tokens.Token{&tokens.Token{Kind: tokens.EOF}}
 	}
-	var token *Token
-	line := 1
+	var toks []*tokens.Token
+	var token *tokens.Token
+	pos := tokens.Position{Line: 1, Col: 1}
 	for len(input) != 0 {
 		token, input = next(input)
 		if token == nil {
 			continue
 		}
-		token.Id, token.Line = len(tokens), line
-		if token.Kind == EOL {
-			line++
+		token.Pos = pos
+		if token.Kind == tokens.UNKNOWN && bytes.Equal(token.Text, []byte{'\n'}) {
+			pos.Line++
 			continue
 		}
-		tokens = append(tokens, token)
+		toks = append(toks, token)
 	}
-	return append(tokens, &Token{Line: line, Kind: EOF})
+	return append(toks, &tokens.Token{Pos: pos, Kind: tokens.EOF})
 }
 
 var (
@@ -37,7 +39,7 @@ var (
 
 // next returns the next token from the input, skipping spaces, comments, and invalid runes.
 // returns nil only if the input is empty.
-func next(buffer []byte) (*Token, []byte) {
+func next(buffer []byte) (*tokens.Token, []byte) {
 	// skip spaces, invalid runes, and comments
 	for len(buffer) != 0 && buffer[0] != '\n' {
 		if buffer[0] == ';' {
@@ -56,25 +58,25 @@ func next(buffer []byte) (*Token, []byte) {
 	if len(buffer) == 0 {
 		return nil, nil
 	} else if buffer[0] == '\n' {
-		return &Token{Kind: EOL}, buffer[1:]
+		return &tokens.Token{Kind: tokens.UNKNOWN, Text: buffer[:1]}, buffer[1:]
 	} else if buffer[0] == '=' {
-		return &Token{Kind: EQ}, buffer[1:]
+		return &tokens.Token{Kind: tokens.EQ}, buffer[1:]
 	} else if buffer[0] == ')' {
-		return &Token{Kind: END_GROUP}, buffer[1:]
+		return &tokens.Token{Kind: tokens.END_GROUP}, buffer[1:]
 	} else if buffer[0] == ']' {
-		return &Token{Kind: END_OPTION}, buffer[1:]
+		return &tokens.Token{Kind: tokens.END_OPTION}, buffer[1:]
 	} else if buffer[0] == '}' {
-		return &Token{Kind: END_REPETITION}, buffer[1:]
+		return &tokens.Token{Kind: tokens.END_REPETITION}, buffer[1:]
 	} else if buffer[0] == '|' {
-		return &Token{Kind: OR}, buffer[1:]
+		return &tokens.Token{Kind: tokens.OR}, buffer[1:]
 	} else if buffer[0] == '(' {
-		return &Token{Kind: START_GROUP}, buffer[1:]
+		return &tokens.Token{Kind: tokens.START_GROUP}, buffer[1:]
 	} else if buffer[0] == '[' {
-		return &Token{Kind: START_OPTION}, buffer[1:]
+		return &tokens.Token{Kind: tokens.START_OPTION}, buffer[1:]
 	} else if buffer[0] == '{' {
-		return &Token{Kind: START_REPETITION}, buffer[1:]
+		return &tokens.Token{Kind: tokens.START_REPETITION}, buffer[1:]
 	} else if buffer[0] == '.' {
-		return &Token{Kind: TERMINATOR}, buffer[1:]
+		return &tokens.Token{Kind: tokens.TERMINATOR}, buffer[1:]
 	}
 
 	// token continues until a delimiter is reached.
@@ -83,13 +85,13 @@ func next(buffer []byte) (*Token, []byte) {
 	r, w := utf8.DecodeRune(buffer)
 	buffer, length = buffer[w:], length+w
 
-	var kind Kind
+	var kind tokens.Kind
 	if unicode.IsLower(r) {
-		kind = NONTERMINAL
+		kind = tokens.NONTERMINAL
 	} else if unicode.IsUpper(r) {
-		kind = TERMINAL
+		kind = tokens.TERMINAL
 	} else {
-		kind = UNKNOWN
+		kind = tokens.UNKNOWN
 	}
 
 	for len(buffer) != 0 && bytes.IndexByte(delims, buffer[0]) == -1 {
@@ -97,10 +99,10 @@ func next(buffer []byte) (*Token, []byte) {
 		if r == utf8.RuneError || unicode.IsSpace(r) {
 			break
 		} else if !(unicode.IsLetter(r) || unicode.IsDigit(r) || r == '_') {
-			kind = UNKNOWN
+			kind = tokens.UNKNOWN
 		}
 		buffer, length = buffer[w:], length+w
 	}
 
-	return &Token{Kind: kind, Text: start[:length]}, buffer
+	return &tokens.Token{Kind: kind, Text: start[:length]}, buffer
 }

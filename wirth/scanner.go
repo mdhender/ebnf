@@ -2,14 +2,15 @@ package wirth
 
 import (
 	"bytes"
+	"github.com/mdhender/ebnf/tokens"
 	"unicode"
 	"unicode/utf8"
 )
 
 // Scan returns a slice containing all the tokens in the input.
 // It always adds an end of input token to that slice.
-func Scan(input []byte) (tokens []*Token) {
-	pos := Position{Line: 1, Col: 1}
+func Scan(input []byte) []*tokens.Token {
+	pos := tokens.Position{Line: 1, Col: 1}
 	s := &scanner{
 		line:   pos.Line,
 		col:    pos.Col,
@@ -17,11 +18,12 @@ func Scan(input []byte) (tokens []*Token) {
 		// delimiters are spaces, comments, any single character terminal, or invalid runes.
 		delims: []byte(" \f\n\n\t\v;()[]{}.=|"),
 	}
+	var toks []*tokens.Token
 	for token := s.next(); token != nil; token = s.next() {
-		tokens = append(tokens, token)
+		toks = append(toks, token)
 		pos = token.Pos
 	}
-	return append(tokens, &Token{Pos: pos, Kind: EOF})
+	return append(toks, &tokens.Token{Pos: pos, Kind: tokens.EOF})
 }
 
 type scanner struct {
@@ -49,7 +51,7 @@ func (s *scanner) iseof() bool {
 
 // next returns the next token from the input, skipping spaces, comments, and invalid runes.
 // returns nil only if the input is empty.
-func (s *scanner) next() *Token {
+func (s *scanner) next() *tokens.Token {
 	// skip spaces, invalid runes, and comments
 	for !s.iseof() {
 		r := s.peekch()
@@ -70,36 +72,36 @@ func (s *scanner) next() *Token {
 		return nil
 	}
 
-	tok := &Token{Pos: Position{Line: s.line, Col: s.col}}
+	tok := &tokens.Token{Pos: tokens.Position{Line: s.line, Col: s.col}}
 	start := s.buffer
 	r := s.getch()
 
 	switch r {
 	case '=':
-		tok.Kind = EQ
+		tok.Kind = tokens.EQ
 	case ')':
-		tok.Kind = END_GROUP
+		tok.Kind = tokens.END_GROUP
 	case ']':
-		tok.Kind = END_OPTION
+		tok.Kind = tokens.END_OPTION
 	case '}':
-		tok.Kind = END_REPETITION
+		tok.Kind = tokens.END_REPETITION
 	case '|':
-		tok.Kind = OR
+		tok.Kind = tokens.OR
 	case '(':
-		tok.Kind = START_GROUP
+		tok.Kind = tokens.START_GROUP
 	case '[':
-		tok.Kind = START_OPTION
+		tok.Kind = tokens.START_OPTION
 	case '{':
-		tok.Kind = START_REPETITION
+		tok.Kind = tokens.START_REPETITION
 	case '.':
-		tok.Kind = TERMINATOR
+		tok.Kind = tokens.TERMINATOR
 	default:
 		if unicode.IsLower(r) {
-			tok.Kind = NONTERMINAL
+			tok.Kind = tokens.NONTERMINAL
 		} else if unicode.IsUpper(r) {
-			tok.Kind = TERMINAL
+			tok.Kind = tokens.TERMINAL
 		} else {
-			tok.Kind = UNKNOWN
+			tok.Kind = tokens.UNKNOWN
 		}
 
 		// token continues until a delimiter is reached.
@@ -107,7 +109,7 @@ func (s *scanner) next() *Token {
 			if r = s.peekch(); r == utf8.RuneError || unicode.IsSpace(r) {
 				break
 			} else if !(unicode.IsLetter(r) || unicode.IsDigit(r) || r == '_') {
-				tok.Kind = UNKNOWN
+				tok.Kind = tokens.UNKNOWN
 			}
 			s.getch()
 		}

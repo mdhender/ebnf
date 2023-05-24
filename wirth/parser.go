@@ -1,5 +1,7 @@
 package wirth
 
+import "github.com/mdhender/ebnf/tokens"
+
 func Parse(input []byte) (*Syntax, error) {
 	p := &parser{tokens: Scan(input)}
 	p.eof = p.tokens[len(p.tokens)-1]
@@ -9,9 +11,9 @@ func Parse(input []byte) (*Syntax, error) {
 }
 
 type parser struct {
-	tokens []*Token // all the tokens in the input
-	eof    *Token   // last token in the input
-	peek   *Token   // one token look-ahead
+	tokens []*tokens.Token // all the tokens in the input
+	eof    *tokens.Token   // last token in the input
+	peek   *tokens.Token   // one token look-ahead
 }
 
 // parser parses a grammar file.

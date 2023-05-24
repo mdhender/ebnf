@@ -1,4 +1,4 @@
-package wirth
+package tokens
 
 import "fmt"
 

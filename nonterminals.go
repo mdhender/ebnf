@@ -5,6 +5,8 @@
 
 package ebnf
 
+import "github.com/mdhender/ebnf/tokens"
+
 // ----------------------------------------------------------------------------
 // Internal representation
 
@@ -29,12 +31,12 @@ type (
 
 	// A Name node represents a production name.
 	Name struct {
-		tok *Token
+		tok *tokens.Token
 	}
 
 	// A Literal node represents a literal.
 	Literal struct {
-		tok *Token
+		tok *tokens.Token
 	}
 
 	//// A List node represents a range of characters.
@@ -44,36 +46,36 @@ type (
 
 	// A Group node represents a grouped expression.
 	Group struct {
-		tok  *Token
+		tok  *tokens.Token
 		Body Expression // (body)
 	}
 
 	// An Option node represents an optional expression.
 	Option struct {
-		tok  *Token
+		tok  *tokens.Token
 		Body Expression // [body]
 	}
 
 	// A Repetition node represents a repeated expression.
 	Repetition struct {
-		tok  *Token
+		tok  *tokens.Token
 		Body Expression // {body}
 	}
 
 	// A Bad node stands for pieces of source code that lead to a parse error.
 	Bad struct {
-		tok *Token
+		tok *tokens.Token
 		err error // parser error message
 	}
 )
 
 func (x Alternative) Pos() int { return x[0].Pos() } // the parser always generates non-empty Alternative
 func (x Sequence) Pos() int    { return x[0].Pos() } // the parser always generates non-empty Sequences
-func (x *Name) Pos() int       { return x.tok.Pos() }
-func (x *Literal) Pos() int    { return x.tok.Pos() }
-func (x *Group) Pos() int      { return x.tok.Pos() }
-func (x *Option) Pos() int     { return x.tok.Pos() }
-func (x *Repetition) Pos() int { return x.tok.Pos() }
+func (x *Name) Pos() int       { return x.tok.Line() }
+func (x *Literal) Pos() int    { return x.tok.Line() }
+func (x *Group) Pos() int      { return x.tok.Line() }
+func (x *Option) Pos() int     { return x.tok.Line() }
+func (x *Repetition) Pos() int { return x.tok.Line() }
 func (x *Production) Pos() int { return x.Name.Pos() }
 func (x *Bad) Pos() int        { return x.Pos() }
 
