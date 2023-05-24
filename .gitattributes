@@ -1,3 +1,4 @@
+*.ebnf         text eol=lf
 *.go           text eol=lf
 *.md           text eol=lf
 *.txt          text eol=lf
