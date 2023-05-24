@@ -32,7 +32,7 @@ func Scan(input []byte) (tokens []*Token) {
 }
 
 var (
-	delims = []byte("()[]{}.=|/ \f\n\r\t\v")
+	delims = []byte("()[]{}.=|; \f\n\r\t\v")
 )
 
 // next returns the next token from the input, skipping spaces, comments, and invalid runes.
@@ -40,7 +40,7 @@ var (
 func next(buffer []byte) (*Token, []byte) {
 	// skip spaces, invalid runes, and comments
 	for len(buffer) != 0 && buffer[0] != '\n' {
-		if bytes.HasPrefix(buffer, []byte{'/', '/'}) {
+		if buffer[0] == ';' {
 			if eol := bytes.IndexByte(buffer, '\n'); eol == -1 {
 				buffer = nil
 			} else {
