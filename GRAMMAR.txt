@@ -1,0 +1,8 @@
+grammar     = production { production } .
+production  = NONTERMINAL EQ [ expression ] TERMINATOR .
+expression  = sequence { OR sequence } .
+sequence    = term { term } .
+term        = NONTERMINAL | TERMINAL | group | option | repetition .
+group       = START_GROUP      expression END_GROUP      .
+option      = START_OPTION     expression END_OPTION     .
+repetition  = START_REPETITION expression END_REPETITION .
