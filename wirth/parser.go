@@ -4,10 +4,13 @@
 
 package wirth
 
-import "github.com/mdhender/ebnf/tokens"
+import (
+	"github.com/mdhender/ebnf/scanners"
+	"github.com/mdhender/ebnf/tokens"
+)
 
 func Parse(input []byte) (*Syntax, error) {
-	p := &parser{tokens: Scan(input)}
+	p := &parser{tokens: scanners.Scan(input)}
 	p.eof = p.tokens[len(p.tokens)-1]
 
 	syntax := p.parse()

@@ -11,7 +11,7 @@ import (
 	"unicode/utf8"
 )
 
-func Scan(input []byte) []*tokens.Token {
+func SScan(input []byte) []*tokens.Token {
 	if len(input) == 0 {
 		return []*tokens.Token{&tokens.Token{Kind: tokens.EOF}}
 	}
