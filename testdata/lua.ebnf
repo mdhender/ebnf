@@ -1,0 +1,104 @@
+;; copied from https://www.lua.org/manual/5.4/manual.html#9
+
+chunk = block .
+
+block = {stat} [retstat] .
+
+stat = SemiColon
+     | varlist EQ explist
+     | functioncall
+     | label
+     | Break
+     | Goto Name
+     | Do block End
+     | While exp Do block End
+     | Repeat block Until exp
+     | If exp Then block {ElseIf exp Then block} [Else block] End
+     | For Name EQ exp Comma exp [Comma exp] Do block End
+     | For namelist In explist Do block End
+     | Function funcname funcbody
+     | Local Function Name funcbody
+     | Local attnamelist [EQ explist] .
+
+attnamelist =  Name attrib {Comma Name attrib} .
+
+attrib = [LT Name GT] .
+
+retstat = Return [explist] [SemiColon] .
+
+label = ColonColon Name ColonColon .
+
+funcname = Name {Dot Name} [Colon Name] .
+
+varlist = var {Comma var} .
+
+var = Name
+    | prefixexp LBracket exp RBracket
+    | prefixexp Dot Name .
+
+namelist = Name {Comma Name} .
+
+explist = exp {Comma exp} .
+
+exp = Nil
+    | False
+    | True
+    | Numeral
+    | LiteralString
+    | DotDotDot
+    | functiondef
+    | prefixexp
+    | tableconstructor
+    | exp binop exp
+    | unop exp .
+
+prefixexp = var
+          | functioncall
+          | LParen exp RParen .
+
+functioncall = prefixexp args
+             | prefixexp Colon Name args .
+
+args = LParen [explist] RParen
+     | tableconstructor
+     | LiteralString .
+
+functiondef = Function funcbody .
+
+funcbody = LParen [parlist] RParen block End .
+
+parlist = namelist [Comma DotDotDot] | DotDotDot .
+
+tableconstructor = LCurly [fieldlist] RCurly .
+
+fieldlist = field {fieldsep field} [fieldsep] .
+
+field = LBracket exp RBracket EQ exp
+      | Name EQ exp
+      | exp .
+
+fieldsep = Comma | SemiColon .
+
+binop = Plus
+      | Minus
+      | Star
+      | Slash
+      | SlashSlash
+      | Caret
+      | Percent
+      | Ampersand
+      | Tilde
+      | Bar
+      | GTGT
+      | LTLT
+      | DotDot
+      | LT
+      | LTEQ
+      | GT
+      | GTEQ
+      | EQEQ
+      | TildeEQ
+      | And
+      | Or .
+
+unop = Minus | Not | Hash | Tilde .
