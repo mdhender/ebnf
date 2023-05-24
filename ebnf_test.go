@@ -6,6 +6,7 @@
 package ebnf
 
 import (
+	"github.com/mdhender/ebnf/scanners"
 	"github.com/mdhender/ebnf/tokens"
 	"testing"
 )
@@ -82,7 +83,7 @@ func TestGrammars(t *testing.T) {
 	t.Logf("running goodGrammars\n")
 	for _, src := range goodGrammars {
 		if debug {
-			for _, token := range Scan([]byte(src)) {
+			for _, token := range scanners.Scan([]byte(src)) {
 				t.Logf("%s\n", token)
 				if token.Kind == tokens.EOF {
 					break
@@ -95,7 +96,7 @@ func TestGrammars(t *testing.T) {
 	t.Logf("running badParse\n")
 	for _, src := range badParse {
 		if debug {
-			for _, token := range Scan([]byte(src)) {
+			for _, token := range scanners.Scan([]byte(src)) {
 				t.Logf("%s\n", token)
 				if token.Kind == tokens.EOF {
 					break
@@ -108,7 +109,7 @@ func TestGrammars(t *testing.T) {
 	t.Logf("running badVerify\n")
 	for _, src := range badVerify {
 		if debug {
-			for _, token := range Scan([]byte(src)) {
+			for _, token := range scanners.Scan([]byte(src)) {
 				t.Logf("%s\n", token)
 				if token.Kind == tokens.EOF {
 					break

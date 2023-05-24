@@ -7,6 +7,7 @@ package ebnf
 
 import (
 	"fmt"
+	"github.com/mdhender/ebnf/scanners"
 	"github.com/mdhender/ebnf/tokens"
 )
 
@@ -15,7 +16,7 @@ import (
 // Errors are reported for incorrect syntax and if a production
 // is declared more than once.
 func Parse(input []byte) (Grammar, []error) {
-	toks := Scan(input)
+	toks := scanners.Scan(input)
 
 	var p parser
 	grammar := p.parse(toks)
