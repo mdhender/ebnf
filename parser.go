@@ -13,12 +13,12 @@ import (
 // It returns a set of productions.
 // Errors are reported for incorrect syntax and if a production
 // is declared more than once.
-func Parse(input []byte) (Grammar, error) {
+func Parse(input []byte) (Grammar, []error) {
 	tokens := Scan(input)
 
 	var p parser
 	grammar := p.parse(tokens)
-	return grammar, p.errors.Err()
+	return grammar, p.errors
 }
 
 type parser struct {
