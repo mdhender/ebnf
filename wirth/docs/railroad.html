@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Railroad Diagrams</title>
+    <style>
+        svg {
+            background-color: hsl(30, 20%, 95%);
+        }
+
+        path {
+            stroke-width: 3;
+            stroke: black;
+            fill: rgba(0, 0, 0, 0);
+        }
+
+        text {
+            font: bold 14px monospace;
+            text-anchor: middle;
+            white-space: pre;
+        }
+
+        text.diagram-text {
+            font-size: 12px;
+        }
+
+        text.diagram-arrow {
+            font-size: 16px;
+        }
+
+        text.label {
+            text-anchor: start;
+        }
+
+        text.comment {
+            font: italic 12px monospace;
+        }
+
+        g.non-terminal text {
+            /*font-style: italic;*/
+        }
+
+        rect {
+            stroke-width: 3;
+            stroke: black;
+            fill: hsl(120, 100%, 90%);
+        }
+
+        rect.group-box {
+            stroke: gray;
+            stroke-dasharray: 10 5;
+            fill: none;
+        }
+
+        path.diagram-text {
+            stroke-width: 3;
+            stroke: black;
+            fill: white;
+            cursor: help;
+        }
+
+        g.diagram-text:hover path.diagram-text {
+            fill: #eee;
+        }
+    </style>
+</head>
+<body>
+<h1>EBNF Railroad Diagrams</h1>
+
+<h2>Grammar</h2>
+<pre><code>
+    syntax     = { production } .
+    production = NONTERMINAL EQ expression TERMINATOR .
+    expression = term { OR term } .
+    term       = factor { factor } .
+    factor     = NONTERMINAL
+               | TERMINAL
+               | START_GROUP expression END_GROUP
+               | START_OPTION expression END_OPTION
+               | START_REPETITION expression END_REPETITION .
+</code></pre>
+
+<h2>Diagrams</h2>
+
+<h3>syntax</h3>
+<svg class="railroad-diagram" width="288" height="80" viewBox="0 0 288 80">
+    <g transform="translate(.5 .5)">
+        <g>
+            <path d="M20 30v20m10 -20v20m-10 -10h30"/>
+        </g>
+        <g>
+            <path d="M40 40h0"/>
+            <path d="M200 40h0"/>
+            <path d="M40 40a10 10 0 0 0 10 -10v0a10 10 0 0 1 10 -10"/>
+            <g>
+                <path d="M60 20h120"/>
+            </g>
+            <path d="M180 20a10 10 0 0 1 10 10v0a10 10 0 0 0 10 10"/>
+            <path d="M40 40h30"/>
+            <g>
+                <path d="M60 40h0"/>
+                <path d="M180 40h0"/>
+                <path d="M60 40h10"/>
+                <g class="non-terminal ">
+                    <path d="M70 40h0"/>
+                    <path d="M170 40h0"/>
+                    <rect x="70" y="29" width="100" height="22"/>
+                    <text x="120" y="44">production</text>
+                </g>
+                <path d="M170 40h10"/>
+                <path d="M70 40a10 10 0 0 0 -10 10v0a10 10 0 0 0 10 10"/>
+                <g>
+                    <path d="M70 60h100"/>
+                </g>
+                <path d="M170 60a10 10 0 0 0 10 -10v0a10 10 0 0 0 -10 -10"/>
+            </g>
+            <path d="M180 40h30"/>
+        </g>
+        <path d="M200 40h10"/>
+        <g class="terminal ">
+            <path d="M210 40h0"/>
+            <path d="M238 40h0"/>
+            <rect x="210" y="29" width="28" height="22" rx="10" ry="10"/>
+            <text x="224" y="44">.</text>
+        </g>
+        <path d="M238 40h10"/>
+        <path d="M 248 40 h 20 m -10 -10 v 20 m 10 -20 v 20"/>
+    </g>
+</svg>
+
+<h3>production</h3>
+<svg class="railroad-diagram" width="424" height="62" viewBox="0 0 424 62">
+    <g transform="translate(.5 .5)">
+        <g>
+            <path d="M20 21v20m10 -20v20m-10 -10h20"></path>
+        </g>
+        <path d="M40 31h10"></path>
+        <g class="terminal ">
+            <path d="M50 31h0"></path>
+            <path d="M158 31h0"></path>
+            <rect x="50" y="20" width="108" height="22" rx="10" ry="10"></rect>
+            <text x="104" y="35">NonTerminal</text>
+        </g>
+        <path d="M158 31h10"></path>
+        <path d="M168 31h10"></path>
+        <g class="terminal ">
+            <path d="M178 31h0"></path>
+            <path d="M206 31h0"></path>
+            <rect x="178" y="20" width="28" height="22" rx="10" ry="10"></rect>
+            <text x="192" y="35">=</text>
+        </g>
+        <path d="M206 31h10"></path>
+        <path d="M216 31h10"></path>
+        <g class="non-terminal ">
+            <path d="M226 31h0"></path>
+            <path d="M326 31h0"></path>
+            <rect x="226" y="20" width="100" height="22"></rect>
+            <text x="276" y="35">expression</text>
+        </g>
+        <path d="M326 31h10"></path>
+        <path d="M336 31h10"></path>
+        <g class="terminal ">
+            <path d="M346 31h0"></path>
+            <path d="M374 31h0"></path>
+            <rect x="346" y="20" width="28" height="22" rx="10" ry="10"></rect>
+            <text x="360" y="35">.</text>
+        </g>
+        <path d="M374 31h10"></path>
+        <path d="M 384 31 h 20 m -10 -10 v 20 m 10 -20 v 20"></path>
+    </g>
+</svg>
+
+<h3>expression</h3>
+<svg class="railroad-diagram" width="312" height="101" viewBox="0 0 312 101">
+    <g transform="translate(.5 .5)">
+        <g>
+            <path d="M20 30v20m10 -20v20m-10 -10h20"></path>
+        </g>
+        <path d="M40 40h10"></path>
+        <g class="non-terminal ">
+            <path d="M50 40h0"></path>
+            <path d="M102 40h0"></path>
+            <rect x="50" y="29" width="52" height="22"></rect>
+            <text x="76" y="44">term</text>
+        </g>
+        <path d="M102 40h10"></path>
+        <g>
+            <path d="M112 40h0"></path>
+            <path d="M224 40h0"></path>
+            <path d="M112 40a10 10 0 0 0 10 -10v0a10 10 0 0 1 10 -10"></path>
+            <g>
+                <path d="M132 20h72"></path>
+            </g>
+            <path d="M204 20a10 10 0 0 1 10 10v0a10 10 0 0 0 10 10"></path>
+            <path d="M112 40h20"></path>
+            <g>
+                <path d="M132 40h0"></path>
+                <path d="M204 40h0"></path>
+                <path d="M132 40h10"></path>
+                <g class="terminal ">
+                    <path d="M142 40h12"></path>
+                    <path d="M182 40h12"></path>
+                    <rect x="154" y="29" width="28" height="22" rx="10" ry="10"></rect>
+                    <text x="168" y="44">|</text>
+                </g>
+                <path d="M194 40h10"></path>
+                <path d="M142 40a10 10 0 0 0 -10 10v10a10 10 0 0 0 10 10"></path>
+                <g class="non-terminal ">
+                    <path d="M142 70h0"></path>
+                    <path d="M194 70h0"></path>
+                    <rect x="142" y="59" width="52" height="22"></rect>
+                    <text x="168" y="74">term</text>
+                </g>
+                <path d="M194 70a10 10 0 0 0 10 -10v-10a10 10 0 0 0 -10 -10"></path>
+            </g>
+            <path d="M204 40h20"></path>
+        </g>
+        <path d="M224 40h10"></path>
+        <g class="terminal ">
+            <path d="M234 40h0"></path>
+            <path d="M262 40h0"></path>
+            <rect x="234" y="29" width="28" height="22" rx="10" ry="10"></rect>
+            <text x="248" y="44">.</text>
+        </g>
+        <path d="M262 40h10"></path>
+        <path d="M 272 40 h 20 m -10 -10 v 20 m 10 -20 v 20"></path>
+    </g>
+</svg>
+
+<h3>term</h3>
+<svg class="railroad-diagram" width="344" height="80" viewBox="0 0 344 80">
+    <g transform="translate(.5 .5)">
+        <g>
+            <path d="M20 30v20m10 -20v20m-10 -10h20"></path>
+        </g>
+        <path d="M40 40h10"></path>
+        <g class="non-terminal ">
+            <path d="M50 40h0"></path>
+            <path d="M118 40h0"></path>
+            <rect x="50" y="29" width="68" height="22"></rect>
+            <text x="84" y="44">factor</text>
+        </g>
+        <path d="M118 40h10"></path>
+        <g>
+            <path d="M128 40h0"></path>
+            <path d="M256 40h0"></path>
+            <path d="M128 40a10 10 0 0 0 10 -10v0a10 10 0 0 1 10 -10"></path>
+            <g>
+                <path d="M148 20h88"></path>
+            </g>
+            <path d="M236 20a10 10 0 0 1 10 10v0a10 10 0 0 0 10 10"></path>
+            <path d="M128 40h20"></path>
+            <g>
+                <path d="M148 40h0"></path>
+                <path d="M236 40h0"></path>
+                <path d="M148 40h10"></path>
+                <g class="non-terminal ">
+                    <path d="M158 40h0"></path>
+                    <path d="M226 40h0"></path>
+                    <rect x="158" y="29" width="68" height="22"></rect>
+                    <text x="192" y="44">factor</text>
+                </g>
+                <path d="M226 40h10"></path>
+                <path d="M158 40a10 10 0 0 0 -10 10v0a10 10 0 0 0 10 10"></path>
+                <g>
+                    <path d="M158 60h68"></path>
+                </g>
+                <path d="M226 60a10 10 0 0 0 10 -10v0a10 10 0 0 0 -10 -10"></path>
+            </g>
+            <path d="M236 40h20"></path>
+        </g>
+        <path d="M256 40h10"></path>
+        <g class="terminal ">
+            <path d="M266 40h0"></path>
+            <path d="M294 40h0"></path>
+            <rect x="266" y="29" width="28" height="22" rx="10" ry="10"></rect>
+            <text x="280" y="44">.</text>
+        </g>
+        <path d="M294 40h10"></path>
+        <path d="M 304 40 h 20 m -10 -10 v 20 m 10 -20 v 20"></path>
+    </g>
+</svg>
+
+<h3>factor</h3>
+<svg class="railroad-diagram" width="364" height="182" viewBox="0 0 364 182">
+    <g transform="translate(.5 .5)">
+        <g>
+            <path d="M20 51v20m10 -20v20m-10 -10h20"></path>
+        </g>
+        <g>
+            <path d="M40 61h0"></path>
+            <path d="M276 61h0"></path>
+            <path d="M40 61a10 10 0 0 0 10 -10v-10a10 10 0 0 1 10 -10"></path>
+            <g class="terminal ">
+                <path d="M60 31h44"></path>
+                <path d="M212 31h44"></path>
+                <rect x="104" y="20" width="108" height="22" rx="10" ry="10"></rect>
+                <text x="158" y="35">NonTerminal</text>
+            </g>
+            <path d="M256 31a10 10 0 0 1 10 10v10a10 10 0 0 0 10 10"></path>
+            <path d="M40 61h20"></path>
+            <g class="terminal ">
+                <path d="M60 61h56"></path>
+                <path d="M200 61h56"></path>
+                <rect x="116" y="50" width="84" height="22" rx="10" ry="10"></rect>
+                <text x="158" y="65">Terminal</text>
+            </g>
+            <path d="M256 61h20"></path>
+            <path d="M40 61a10 10 0 0 1 10 10v10a10 10 0 0 0 10 10"></path>
+            <g>
+                <path d="M60 91h0"></path>
+                <path d="M256 91h0"></path>
+                <g class="terminal ">
+                    <path d="M60 91h0"></path>
+                    <path d="M88 91h0"></path>
+                    <rect x="60" y="80" width="28" height="22" rx="10" ry="10"></rect>
+                    <text x="74" y="95">(</text>
+                </g>
+                <path d="M88 91h10"></path>
+                <path d="M98 91h10"></path>
+                <g class="non-terminal ">
+                    <path d="M108 91h0"></path>
+                    <path d="M208 91h0"></path>
+                    <rect x="108" y="80" width="100" height="22"></rect>
+                    <text x="158" y="95">expression</text>
+                </g>
+                <path d="M208 91h10"></path>
+                <path d="M218 91h10"></path>
+                <g class="terminal ">
+                    <path d="M228 91h0"></path>
+                    <path d="M256 91h0"></path>
+                    <rect x="228" y="80" width="28" height="22" rx="10" ry="10"></rect>
+                    <text x="242" y="95">)</text>
+                </g>
+            </g>
+            <path d="M256 91a10 10 0 0 0 10 -10v-10a10 10 0 0 1 10 -10"></path>
+            <path d="M40 61a10 10 0 0 1 10 10v40a10 10 0 0 0 10 10"></path>
+            <g>
+                <path d="M60 121h0"></path>
+                <path d="M256 121h0"></path>
+                <g class="terminal ">
+                    <path d="M60 121h0"></path>
+                    <path d="M88 121h0"></path>
+                    <rect x="60" y="110" width="28" height="22" rx="10" ry="10"></rect>
+                    <text x="74" y="125">&#91;</text>
+                </g>
+                <path d="M88 121h10"></path>
+                <path d="M98 121h10"></path>
+                <g class="non-terminal ">
+                    <path d="M108 121h0"></path>
+                    <path d="M208 121h0"></path>
+                    <rect x="108" y="110" width="100" height="22"></rect>
+                    <text x="158" y="125">expression</text>
+                </g>
+                <path d="M208 121h10"></path>
+                <path d="M218 121h10"></path>
+                <g class="terminal ">
+                    <path d="M228 121h0"></path>
+                    <path d="M256 121h0"></path>
+                    <rect x="228" y="110" width="28" height="22" rx="10" ry="10"></rect>
+                    <text x="242" y="125">&#93;</text>
+                </g>
+            </g>
+            <path d="M256 121a10 10 0 0 0 10 -10v-40a10 10 0 0 1 10 -10"></path>
+            <path d="M40 61a10 10 0 0 1 10 10v70a10 10 0 0 0 10 10"></path>
+            <g>
+                <path d="M60 151h0"></path>
+                <path d="M256 151h0"></path>
+                <g class="terminal ">
+                    <path d="M60 151h0"></path>
+                    <path d="M88 151h0"></path>
+                    <rect x="60" y="140" width="28" height="22" rx="10" ry="10"></rect>
+                    <text x="74" y="155">{</text>
+                </g>
+                <path d="M88 151h10"></path>
+                <path d="M98 151h10"></path>
+                <g class="non-terminal ">
+                    <path d="M108 151h0"></path>
+                    <path d="M208 151h0"></path>
+                    <rect x="108" y="140" width="100" height="22"></rect>
+                    <text x="158" y="155">expression</text>
+                </g>
+                <path d="M208 151h10"></path>
+                <path d="M218 151h10"></path>
+                <g class="terminal ">
+                    <path d="M228 151h0"></path>
+                    <path d="M256 151h0"></path>
+                    <rect x="228" y="140" width="28" height="22" rx="10" ry="10"></rect>
+                    <text x="242" y="155">}</text>
+                </g>
+            </g>
+            <path d="M256 151a10 10 0 0 0 10 -10v-70a10 10 0 0 1 10 -10"></path>
+        </g>
+        <path d="M276 61h10"></path>
+        <g class="terminal ">
+            <path d="M286 61h0"></path>
+            <path d="M314 61h0"></path>
+            <rect x="286" y="50" width="28" height="22" rx="10" ry="10"></rect>
+            <text x="300" y="65">.</text>
+        </g>
+        <path d="M314 61h10"></path>
+        <path d="M 324 61 h 20 m -10 -10 v 20 m 10 -20 v 20"></path>
+    </g>
+</svg>
+
+<h2>Railroad Diagram Code</h2>
+<p>
+    Tab Atkin's <a href="https://github.com/tabatkins/railroad-diagrams">Railroad Diagrams</a> is used to create the
+    diagrams.
+</p>
+
+<h3>syntax</h3>
+<pre>
+    <code>
+Diagram(
+    ZeroOrMore(
+        NonTerminal('production'),
+    ),
+    Terminal('.'),
+)
+    </code>
+</pre>
+
+<h3>production</h3>
+<pre>
+    <code>
+Diagram(
+    Terminal('NonTerminal'),
+    Terminal('='),
+    NonTerminal('expression'),
+    Terminal('.'),
+)
+    </code>
+</pre>
+
+<h3>expression</h3>
+<pre>
+    <code>
+Diagram(
+    NonTerminal('term'),
+    ZeroOrMore(
+        Terminal('|'),
+        NonTerminal('term'),
+    ),
+    Terminal('.'),
+)
+    </code>
+</pre>
+
+<h3>term</h3>
+<pre>
+    <code>
+Diagram(
+    NonTerminal('factor'),
+    ZeroOrMore(
+        NonTerminal('factor'),
+    ),
+    Terminal('.'),
+)
+    </code>
+</pre>
+
+<h3>factor</h3>
+<pre>
+    <code>
+Diagram(
+    Choice(1,
+        Terminal('NonTerminal'),
+        Terminal('Terminal'),
+        Sequence(Terminal('('), NonTerminal('expression'), Terminal(')')),
+        Sequence(Terminal('['), NonTerminal('expression'), Terminal(']')),
+        Sequence(Terminal('{'), NonTerminal('expression'), Terminal('}')),
+    ),
+    Terminal('.'),
+)
+    </code>
+</pre>
+
+</body>
+</html>
