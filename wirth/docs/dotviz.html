@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DotViz</title>
+</head>
+<body>
+
+<h1>DotViz</h1>
+<img src="dotviz.png">
+<pre>
+  <code>
+digraph finite_state_machine {
+	fontname="Helvetica,Arial,sans-serif"
+	node [fontname="Helvetica,Arial,sans-serif"]
+	edge [fontname="Helvetica,Arial,sans-serif"]
+	rankdir=LR;
+	node [shape = doublecircle]; 0 9;
+	node [shape = circle];
+	0 -> 1  [label = "NONTERMINAL"];
+	1 -> 2 [label = "EQ" ];
+    2 -> 3 [label = "ε"];
+    2 -> 3 [label = "TERMINAL" ];
+    2 -> 3 [label = "NONTERMINAL"];
+    2 -> 21 [label = "("];
+    21 -> 22 [label = "expression"];
+    22 -> 3 [label = ")"];
+    2 -> 23 [label = "["];
+    23 -> 24 [label = "expression"];
+    24 -> 3 [label = "]"];
+    2 -> 25 [label = "["];
+    25 -> 26 [label = "expression"];
+    26 -> 3 [label = "]"];
+    3 -> 2 [label = "OR"];
+    3 -> 2 [label = "ε"];
+
+	0 -> 9 [label = "EOF"];
+    3 -> 9 [label = "TERMINATOR"];
+}
+  </code>
+</pre>
+</body>
+</html>
