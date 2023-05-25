@@ -43,4 +43,7 @@ func main() {
 		production := grammar.Productions[name]
 		fmt.Printf("grammar: %-30s %6d\n", name, production.Identifier.Line())
 	}
+	for _, err := range grammar.Errors {
+		fmt.Printf("grammar: %v\n", err)
+	}
 }

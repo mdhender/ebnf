@@ -9,6 +9,7 @@ import "github.com/mdhender/ebnf/tokens"
 type Grammar struct {
 	Start       *tokens.Token
 	Productions map[string]*Production
+	Errors      []error
 }
 
 type Syntax struct {
