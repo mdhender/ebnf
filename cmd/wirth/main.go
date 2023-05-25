@@ -6,9 +6,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/mdhender/ebnf/scanners"
+	"github.com/mdhender/ebnf/tokens"
+	"github.com/mdhender/ebnf/wirth"
 	"log"
 	"os"
+	"sort"
 )
 
 func main() {
@@ -16,8 +18,29 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	tokens := scanners.Scan(input)
-	for id, token := range tokens {
-		fmt.Printf("%4d: %4d: %3d: %s\n", id, token.Line(), token.Column(), token.String())
+	grammar, err := wirth.Parse(input)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("grammar: start symbol %q\n", string(grammar.Start.Text))
+	var identifiers []*tokens.Token
+	for _, production := range grammar.Productions {
+		identifiers = append(identifiers, production.Identifier)
+	}
+	sort.Slice(identifiers, func(i, j int) bool {
+		return identifiers[i].Line() < identifiers[j].Line()
+	})
+	for _, identifier := range identifiers {
+		name := string(identifier.Text)
+		production := grammar.Productions[name]
+		fmt.Printf("grammar: %6d %s\n", production.Identifier.Line(), name)
+	}
+	sort.Slice(identifiers, func(i, j int) bool {
+		return string(identifiers[i].Text) < string(identifiers[j].Text)
+	})
+	for _, identifier := range identifiers {
+		name := string(identifier.Text)
+		production := grammar.Productions[name]
+		fmt.Printf("grammar: %-30s %6d\n", name, production.Identifier.Line())
 	}
 }

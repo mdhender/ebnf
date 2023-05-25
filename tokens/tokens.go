@@ -38,7 +38,7 @@ func (t *Token) String() string {
 	case UNKNOWN:
 		return fmt.Sprintf("(%d %q)", t.Line(), string(t.Text))
 	case NONTERMINAL:
-		return fmt.Sprintf("(%d %s)", t.Line(), string(t.Text))
+		return fmt.Sprintf("(%d nt %s)", t.Line(), string(t.Text))
 	case EQ:
 		return fmt.Sprintf("(%d '=')", t.Line())
 	case TERMINATOR:
@@ -46,7 +46,7 @@ func (t *Token) String() string {
 	case OR:
 		return fmt.Sprintf("(%d '|')", t.Line())
 	case TERMINAL:
-		return fmt.Sprintf("(%d %s)", t.Line(), string(t.Text))
+		return fmt.Sprintf("(%d t %s)", t.Line(), string(t.Text))
 	case START_GROUP:
 		return fmt.Sprintf("(%d '(')", t.Line())
 	case END_GROUP:

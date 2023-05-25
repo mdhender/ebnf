@@ -6,9 +6,13 @@ package wirth
 
 import "github.com/mdhender/ebnf/tokens"
 
-type Syntax struct {
+type Grammar struct {
 	Start       *tokens.Token
 	Productions map[string]*Production
+}
+
+type Syntax struct {
+	Productions []*Production
 }
 
 type Production struct {

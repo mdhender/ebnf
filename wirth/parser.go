@@ -8,205 +8,235 @@ import (
 	"fmt"
 	"github.com/mdhender/ebnf/scanners"
 	"github.com/mdhender/ebnf/tokens"
+	"log"
 )
 
-func Parse(input []byte) (*Syntax, error) {
-	p := &parser{tokens: scanners.Scan(input)}
-	p.eof = p.tokens[len(p.tokens)-1]
+/*
+	╔═══════════════════════════════════════════════════════════╗
+	║ syntax     = { production } .                             ║
+	║ production = NONTERMINAL EQ [expression] TERMINATOR .     ║
+	║ expression = term { OR term } .                           ║
+	║ term       = factor { factor } .                          ║
+	║ factor     = NONTERMINAL                                  ║
+	║            | TERMINAL                                     ║
+	║            | START_GROUP      expression END_GROUP        ║
+	║            | START_OPTION     expression END_OPTION       ║
+	║            | START_REPETITION expression END_REPETITION . ║
+	╚═══════════════════════════════════════════════════════════╝
 
-	syntax := p.parse()
-	return syntax, nil
+	start             = syntax
+	first(syntax)     = first(production), Ɛ
+	first(production) = NONTERMINAL
+	first(expression) = first(term)
+	first(term)       = first(factor)
+	first(factor)     = NONTERMINAL, TERMINAL, START_GROUP, START_OPTION, START_REPETITION
+*/
+
+func Parse(input []byte) (*Grammar, error) {
+	p := &parser{tokens: scanners.Scan(input)}
+	p.current = p.tokens[0]
+	p.eof = p.tokens[len(p.tokens)-1]
+	if p.eof.Kind != tokens.EOF {
+		panic("parse: missing EOF token")
+	}
+	grammar := p.parse()
+	if p.current != p.eof {
+		// didn't parse all tokens???
+		for p.current != p.eof {
+			log.Printf("parse: %s\n", p.current.String())
+			p.next()
+		}
+		return grammar, fmt.Errorf("parse: extra tokens")
+	}
+	return grammar, nil
 }
 
 type parser struct {
-	tokens  []*tokens.Token // all the tokens in the input
-	current int             // index of the current token
+	current *tokens.Token   // current token in the input
 	eof     *tokens.Token   // last token in the input
 	errors  []error         // all parsing errors
+	tokens  []*tokens.Token // all the tokens in the input
 }
 
 // parser parses a grammar file.
-func (p *parser) parse() (syntax *Syntax) {
-	syntax = &Syntax{Productions: make(map[string]*Production)}
-
-	return syntax
+func (p *parser) parse() *Grammar {
+	grammar := &Grammar{Productions: make(map[string]*Production)}
+	syntax := p.ntSyntax()
+	for _, production := range syntax.Productions {
+		identifier := production.Identifier
+		if identifier == nil || identifier.Kind != tokens.NONTERMINAL {
+			continue
+		}
+		if grammar.Start == nil {
+			grammar.Start = identifier
+		}
+		grammar.Productions[string(identifier.Text)] = production
+	}
+	if grammar.Start == nil {
+		grammar.Start = &tokens.Token{Kind: tokens.NONTERMINAL, Text: []byte{'$'}}
+	}
+	return grammar
 }
 
 // syntax recognizes
 // --> { production }
-func (p *parser) ntSyntax() (*Node, error) {
-	for n, err := p.ntProduction(); n != nil; n, err = p.ntProduction() {
-		if err != nil {
-			p.addError(err)
+func (p *parser) ntSyntax() *Syntax {
+	syntax := &Syntax{}
+	for p.current != p.eof {
+		if p.current.Kind != tokens.NONTERMINAL {
+			p.addError(fmt.Errorf("%d:%d: expected identifier, got %s\n", p.current.Line(), p.current.Column(), p.current.Kind))
+			p.next()
+			continue
 		}
-		// ... //
+		syntax.Productions = append(syntax.Productions, p.ntProduction())
 	}
-	return nil, nil
+	return syntax
 }
 
 // production recognizes
-// --> NONTERMINAL EQ expression TERMINATOR
-func (p *parser) ntProduction() (*Production, error) {
-	identifier, ok := p.accept(tokens.NONTERMINAL)
-	if !ok {
-		return nil, nil
+// --> NONTERMINAL EQ [expression] TERMINATOR
+func (p *parser) ntProduction() *Production {
+	production := &Production{}
+	production.Identifier = p.expect(tokens.NONTERMINAL)
+	_ = p.expect(tokens.EQ)
+	if p.firstExpression(p.current.Kind) {
+		production.Expression = p.ntExpression()
 	}
-	production := &Production{
-		Identifier: identifier,
-	}
-	_, err := p.expect(tokens.EQ)
-	if err != nil {
-		p.addError(err)
-	}
-	production.Expression, err = p.ntExpression()
-	if err != nil {
-		p.addError(err)
-	}
-	if _, err = p.expect(tokens.TERMINATOR); err != nil {
-		p.addError(err)
-	}
-	return production, nil
+	_ = p.expect(tokens.TERMINATOR)
+	return production
 }
 
 // expression recognizes
 // --> term { OR term }
-func (p *parser) ntExpression() (*Expression, error) {
-	term, err := p.ntTerm()
-	if err != nil {
-		p.addError(err)
-		return nil, fmt.Errorf("expected term")
+func (p *parser) ntExpression() *Expression {
+	expression := &Expression{}
+	expression.Terms = append(expression.Terms, p.ntTerm())
+	for p.current.Kind == tokens.OR {
+		_ = p.expect(tokens.OR)
+		expression.Terms = append(expression.Terms, p.ntTerm())
 	}
-	expression := &Expression{
-		Terms: []*Term{term},
-	}
-	for _, ok := p.accept(tokens.OR); ok; _, ok = p.accept(tokens.OR) {
-		term, err = p.ntTerm()
-		if err != nil {
-			p.addError(err)
-			return nil, fmt.Errorf("expected term")
-		}
-		expression.Terms = append(expression.Terms)
-	}
-	return expression, nil
+	return expression
 }
 
 // term recognizes
 // --> factor { factor }
-func (p *parser) ntTerm() (*Term, error) {
-	factor, err := p.ntFactor()
-	if err != nil {
-		p.addError(err)
+func (p *parser) ntTerm() *Term {
+	term := &Term{}
+	term.Factors = append(term.Factors, p.ntFactor())
+	for p.firstFactor(p.current.Kind) {
+		term.Factors = append(term.Factors, p.ntFactor())
 	}
-	term := &Term{
-		Factors: []*Factor{
-			factor,
-		},
-	}
-	for factor, err = p.ntFactor(); factor != nil && err != nil; factor, err = p.ntFactor() {
-		if err != nil {
-			p.addError(err)
-		}
-		if factor != nil {
-			term.Factors = append(term.Factors, factor)
-		}
-	}
-	return term, err
+	return term
 }
 
-// factor recognizes
-// * --> NONTERMINAL
-// *   | TERMINAL
-// *   | START_GROUP expression END_GROUP
-// *   | START_OPTION expression END_OPTION
-// *   | START_REPETITION expression END_REPETITION
-func (p *parser) ntFactor() (*Factor, error) {
-	if token, ok := p.accept(tokens.NONTERMINAL); ok {
-		return &Factor{NonTerminal: token}, nil
+/*
+factor recognizes
+
+	--> NONTERMINAL
+	  | TERMINAL
+	  | START_GROUP expression END_GROUP
+	  | START_OPTION expression END_OPTION
+	  | START_REPETITION expression END_REPETITION
+*/
+func (p *parser) ntFactor() *Factor {
+	factor := &Factor{}
+	if p.current.Kind == tokens.NONTERMINAL {
+		factor.NonTerminal = p.expect(tokens.NONTERMINAL)
+	} else if p.current.Kind == tokens.TERMINAL {
+		factor.Terminal = p.expect(tokens.TERMINATOR)
+	} else if p.firstGroup(p.current.Kind) {
+		factor.Group = p.ntGroup()
+	} else if p.firstOption(p.current.Kind) {
+		factor.Option = p.ntOption()
+	} else if p.firstRepetition(p.current.Kind) {
+		factor.Repetition = p.ntRepetition()
+	} else { // should never happen
+		p.addError(fmt.Errorf("%d:%d: expected identifier, '(', '[', or '[', got %s", p.current.Line(), p.current.Column(), p.current.String()))
+		p.next()
 	}
-	if token, ok := p.accept(tokens.TERMINAL); ok {
-		return &Factor{Terminal: token}, nil
-	}
-	if start, ok := p.accept(tokens.START_GROUP); ok {
-		expression, err := p.ntExpression()
-		if err != nil {
-			p.addError(err)
-		}
-		end, err := p.expect(tokens.END_GROUP)
-		return &Factor{
-			Group: &Group{
-				Start:      start,
-				Expression: expression,
-				End:        end},
-		}, err
-	}
-	if start, ok := p.accept(tokens.START_OPTION); ok {
-		expression, err := p.ntExpression()
-		if err != nil {
-			p.addError(err)
-		}
-		end, err := p.expect(tokens.END_OPTION)
-		return &Factor{
-			Option: &Option{
-				Start:      start,
-				Expression: expression,
-				End:        end},
-		}, err
-	}
-	if start, ok := p.accept(tokens.START_REPETITION); ok {
-		expression, err := p.ntExpression()
-		if err != nil {
-			p.addError(err)
-		}
-		end, err := p.expect(tokens.END_REPETITION)
-		return &Factor{
-			Repetition: &Repetition{
-				Start:      start,
-				Expression: expression,
-				End:        end},
-		}, err
-	}
-	return nil, nil
+	return factor
+}
+
+// group recognizes
+// --> START_GROUP expression END_GROUP
+func (p *parser) ntGroup() *Group {
+	group := &Group{}
+	group.Start = p.expect(tokens.START_GROUP)
+	group.Expression = p.ntExpression()
+	group.End = p.expect(tokens.END_GROUP)
+	return group
+}
+
+// option recognizes
+// --> START_OPTION expression END_OPTION
+func (p *parser) ntOption() *Option {
+	option := &Option{}
+	option.Start = p.expect(tokens.START_OPTION)
+	option.Expression = p.ntExpression()
+	option.End = p.expect(tokens.END_OPTION)
+	return option
+}
+
+// repetition recognizes
+// --> START_REPETITION expression END_REPETITION
+func (p *parser) ntRepetition() *Repetition {
+	repetition := &Repetition{}
+	repetition.Start = p.expect(tokens.START_REPETITION)
+	repetition.Expression = p.ntExpression()
+	repetition.End = p.expect(tokens.END_REPETITION)
+	return repetition
+}
+
+func (p *parser) firstExpression(k tokens.Kind) bool {
+	return p.firstTerm(k)
+}
+
+func (p *parser) firstTerm(k tokens.Kind) bool {
+	return p.firstFactor(k)
+}
+
+func (p *parser) firstFactor(k tokens.Kind) bool {
+	return k == tokens.NONTERMINAL || k == tokens.TERMINAL || k == tokens.START_GROUP || k == tokens.START_OPTION || k == tokens.START_REPETITION
+}
+
+func (p *parser) firstGroup(k tokens.Kind) bool {
+	return k == tokens.START_GROUP
+}
+
+func (p *parser) firstOption(k tokens.Kind) bool {
+	return k == tokens.START_OPTION
+}
+
+func (p *parser) firstRepetition(k tokens.Kind) bool {
+	return k == tokens.START_REPETITION
 }
 
 func (p *parser) addError(err error) {
 	p.errors = append(p.errors, err)
 }
 
-// accept returns the next terminal in the input if it matches,
-// otherwise, it returns the token and false.
-func (p *parser) accept(k tokens.Kind) (*tokens.Token, bool) {
-	if token := p.peek(); token.Kind != k {
-		return token, false
-	}
-	return p.next(), true
-}
-
 // expect reads the next token from the input.
 // if the kind matches the expected kind, the token is returned.
 // otherwise, the both the token and an error are returned.
-func (p *parser) expect(k tokens.Kind) (token *tokens.Token, err error) {
-	token = p.next()
+func (p *parser) expect(k tokens.Kind) *tokens.Token {
+	token := p.current
+	p.next()
 	if token.Kind != k {
 		if len(token.Text) == 0 {
-			err = fmt.Errorf("%d:%d: expect %s, got %s", token.Line(), token.Column(), k.String(), token.String())
+			p.addError(fmt.Errorf("%d:%d: expect %s, got %s", token.Line(), token.Column(), k.String(), token.String()))
 		} else {
-			err = fmt.Errorf("%d:%d: expect %s, got %s: %q", token.Line(), token.Column(), k.String(), token.String(), string(token.Text))
+			p.addError(fmt.Errorf("%d:%d: expect %s, got %s: %q", token.Line(), token.Column(), k.String(), token.String(), string(token.Text)))
 		}
 	}
-	return token, err
+	return token
 }
 
-func (p *parser) next() *tokens.Token {
-	if p.current+1 >= len(p.tokens) {
-		panic("assert(next != nil)")
+func (p *parser) next() {
+	if p.current != p.eof {
+		p.current, p.tokens = p.tokens[1], p.tokens[1:]
 	}
-	p.current++
-	return p.tokens[p.current]
 }
 
 func (p *parser) peek() *tokens.Token {
-	if p.current+1 >= len(p.tokens) {
-		panic("assert(peek != nil)")
-	}
-	return p.tokens[p.current+1]
+	return p.tokens[0]
 }
