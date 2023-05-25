@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>State Diagram</title>
+</head>
+<body>
+<h1>State Diagram</h1>
+<p>Built from <a href="https://www.cs.unc.edu/~otternes/comp455/fsm_designer/">Finite State Machine Designer</a>.</p>
+
+<h2>State Diagram</h2>
+
+<svg xmlns="http://www.w3.org/2000/svg" width="642" height="231">
+  <ellipse stroke="black" stroke-width="1" fill="none" cx="33.5" cy="198.5" rx="30" ry="30"/>
+  <text x="28.5" y="204.5" font-family="Times New Roman" font-size="20">^</text>
+  <ellipse stroke="black" stroke-width="1" fill="none" cx="424.5" cy="198.5" rx="30" ry="30"/>
+  <text x="419.5" y="204.5" font-family="Times New Roman" font-size="20">$</text>
+  <ellipse stroke="black" stroke-width="1" fill="none" cx="424.5" cy="198.5" rx="24" ry="24"/>
+  <ellipse stroke="black" stroke-width="1" fill="none" cx="33.5" cy="32.5" rx="30" ry="30"/>
+  <text x="28.5" y="38.5" font-family="Times New Roman" font-size="20">1</text>
+  <ellipse stroke="black" stroke-width="1" fill="none" cx="212.5" cy="32.5" rx="30" ry="30"/>
+  <text x="207.5" y="38.5" font-family="Times New Roman" font-size="20">2</text>
+  <ellipse stroke="black" stroke-width="1" fill="none" cx="418.5" cy="32.5" rx="30" ry="30"/>
+  <text x="413.5" y="38.5" font-family="Times New Roman" font-size="20">3</text>
+  <ellipse stroke="black" stroke-width="1" fill="none" cx="610.5" cy="32.5" rx="30" ry="30"/>
+  <text x="605.5" y="38.5" font-family="Times New Roman" font-size="20">4</text>
+  <ellipse stroke="black" stroke-width="1" fill="none" cx="610.5" cy="188.5" rx="30" ry="30"/>
+  <text x="605.5" y="194.5" font-family="Times New Roman" font-size="20">5</text>
+  <polygon stroke="black" stroke-width="1" points="63.5,198.5 394.5,198.5"/>
+  <polygon fill="black" stroke-width="1" points="394.5,198.5 386.5,193.5 386.5,203.5"/>
+  <text x="210.5" y="219.5" font-family="Times New Roman" font-size="20">EOF</text>
+  <polygon stroke="black" stroke-width="1" points="33.5,168.5 33.5,62.5"/>
+  <polygon fill="black" stroke-width="1" points="33.5,62.5 28.5,70.5 38.5,70.5"/>
+  <text x="38.5" y="121.5" font-family="Times New Roman" font-size="20">nonterminal</text>
+  <polygon stroke="black" stroke-width="1" points="63.5,32.5 182.5,32.5"/>
+  <polygon fill="black" stroke-width="1" points="182.5,32.5 174.5,27.5 174.5,37.5"/>
+  <text x="109.5" y="53.5" font-family="Times New Roman" font-size="20">EQ</text>
+  <polygon stroke="black" stroke-width="1" points="242.5,32.5 388.5,32.5"/>
+  <polygon fill="black" stroke-width="1" points="388.5,32.5 380.5,27.5 380.5,37.5"/>
+  <text x="297.5" y="53.5" font-family="Times New Roman" font-size="20">term</text>
+  <polygon stroke="black" stroke-width="1" points="448.5,32.5 580.5,32.5"/>
+  <polygon fill="black" stroke-width="1" points="580.5,32.5 572.5,27.5 572.5,37.5"/>
+  <text x="496.5" y="53.5" font-family="Times New Roman" font-size="20">term</text>
+  <polygon stroke="black" stroke-width="1" points="610.5,62.5 610.5,158.5"/>
+  <polygon fill="black" stroke-width="1" points="610.5,158.5 615.5,150.5 605.5,150.5"/>
+  <text x="577.5" y="116.5" font-family="Times New Roman" font-size="20">OR</text>
+  <polygon stroke="black" stroke-width="1" points="587.217,169.582 441.783,51.418"/>
+  <polygon fill="black" stroke-width="1" points="441.783,51.418 444.839,60.343 451.145,52.582"/>
+  <text x="519.5" y="101.5" font-family="Times New Roman" font-size="20">&#949;</text>
+  <polygon stroke="black" stroke-width="1" points="390.952,44.378 61.048,186.622"/>
+  <polygon fill="black" stroke-width="1" points="61.048,186.622 70.374,188.046 66.415,178.863"/>
+  <text x="94.5" y="105.5" font-family="Times New Roman" font-size="20">TERMINATOR</text>
+</svg>
+
+<h3>JSON Input</h3>
+<pre>
+  <code>
+{
+  "nodes": [
+    {
+      "x": 92,
+      "y": 262,
+      "text": "^",
+      "isAcceptState": false,
+      "textOnly": false
+    },
+    {
+      "x": 483,
+      "y": 262,
+      "text": "$",
+      "isAcceptState": true,
+      "textOnly": false
+    },
+    {
+      "x": 92,
+      "y": 96,
+      "text": "1",
+      "isAcceptState": false,
+      "textOnly": false
+    },
+    {
+      "x": 271,
+      "y": 96,
+      "text": "2",
+      "isAcceptState": false,
+      "textOnly": false
+    },
+    {
+      "x": 477,
+      "y": 96,
+      "text": "3",
+      "isAcceptState": false,
+      "textOnly": false
+    },
+    {
+      "x": 669,
+      "y": 96,
+      "text": "4",
+      "isAcceptState": false,
+      "textOnly": false
+    },
+    {
+      "x": 669,
+      "y": 252,
+      "text": "5",
+      "isAcceptState": false,
+      "textOnly": false
+    }
+  ],
+  "links": [
+    {
+      "type": "Link",
+      "nodeA": 0,
+      "nodeB": 1,
+      "text": "EOF",
+      "lineAngleAdjust": 0,
+      "parallelPart": 0.5,
+      "perpendicularPart": 0
+    },
+    {
+      "type": "Link",
+      "nodeA": 0,
+      "nodeB": 2,
+      "text": "nonterminal",
+      "lineAngleAdjust": 0,
+      "parallelPart": 0.5,
+      "perpendicularPart": 0
+    },
+    {
+      "type": "Link",
+      "nodeA": 2,
+      "nodeB": 3,
+      "text": "EQ",
+      "lineAngleAdjust": 0,
+      "parallelPart": 0.5,
+      "perpendicularPart": 0
+    },
+    {
+      "type": "Link",
+      "nodeA": 3,
+      "nodeB": 4,
+      "text": "term",
+      "lineAngleAdjust": 0,
+      "parallelPart": 0.5,
+      "perpendicularPart": 0
+    },
+    {
+      "type": "Link",
+      "nodeA": 4,
+      "nodeB": 5,
+      "text": "term",
+      "lineAngleAdjust": 0,
+      "parallelPart": 0.5,
+      "perpendicularPart": 0
+    },
+    {
+      "type": "Link",
+      "nodeA": 5,
+      "nodeB": 6,
+      "text": "OR",
+      "lineAngleAdjust": 0,
+      "parallelPart": 0.5,
+      "perpendicularPart": 0
+    },
+    {
+      "type": "Link",
+      "nodeA": 6,
+      "nodeB": 4,
+      "text": "\\epsilon",
+      "lineAngleAdjust": 0,
+      "parallelPart": 0.5,
+      "perpendicularPart": 0
+    },
+    {
+      "type": "Link",
+      "nodeA": 4,
+      "nodeB": 0,
+      "text": "TERMINATOR",
+      "lineAngleAdjust": 0,
+      "parallelPart": 0.5,
+      "perpendicularPart": 0
+    }
+  ],
+  "nodeRadius": 30
+}
+  </code>
+</pre>
+</body>
+</html>
