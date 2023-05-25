@@ -12,7 +12,7 @@ type Syntax struct {
 }
 
 type Production struct {
-	Name       *tokens.Token
+	Identifier *tokens.Token
 	Expression *Expression
 }
 
@@ -27,7 +27,26 @@ type Term struct {
 type Factor struct {
 	NonTerminal *tokens.Token
 	Terminal    *tokens.Token
-	Group       *Expression
-	Option      *Expression
-	Repetition  *Expression
+	Group       *Group
+	Option      *Option
+	Repetition  *Repetition
+	Expression  *Expression
+}
+
+type Group struct {
+	Start      *tokens.Token
+	Expression *Expression
+	End        *tokens.Token
+}
+
+type Option struct {
+	Start      *tokens.Token
+	Expression *Expression
+	End        *tokens.Token
+}
+
+type Repetition struct {
+	Start      *tokens.Token
+	Expression *Expression
+	End        *tokens.Token
 }

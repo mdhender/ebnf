@@ -20,10 +20,16 @@ type Token struct {
 }
 
 func (t *Token) Column() int {
+	if t == nil {
+		return 0
+	}
 	return t.Pos.Col
 }
 
 func (t *Token) Line() int {
+	if t == nil {
+		return 0
+	}
 	return t.Pos.Line
 }
 

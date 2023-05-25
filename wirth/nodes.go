@@ -7,14 +7,14 @@ package wirth
 import "github.com/mdhender/ebnf/tokens"
 
 type Node struct {
-	// Identifier is the name of the node.
-	// If the node is a terminal, it is the name of the terminal.
-	// Otherwise, it is the name of the production.
-	Identifier string
 	// type of node, terminal or non-terminal.
 	Type Type
 	// position of the node in the input.
 	Pos tokens.Position
+	// Identifier is the name of the node.
+	// If the node is a terminal, it is the name of the terminal.
+	// Otherwise, it is the name of the production.
+	Identifier string
 	// Successor and Alternative are set only for non-terminal nodes.
 	Successor   *Node
 	Alternative *Node
@@ -36,4 +36,5 @@ const (
 	BADNODE Type = iota
 	NONTERMINALNODE
 	TERMINALNODE
+	PRODUCTION
 )
